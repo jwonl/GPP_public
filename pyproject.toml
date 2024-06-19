@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.2", "wheel"]
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+include = ["imager"]
+exclude = ["notebooks"]
+
+[project]
+name = "imager"
+authors = [
+    {name = "Jaewon Lee", email = "jwonlee@berkeley.edu"}
+]
+description = "Python package for Radiation Image Reconstruction and Uncertainty Quantification Using a Gaussian Process Prior"
+version = "0.0.1"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "pykronecker",
+    "tqdm",
+    "cmocean"
+]
