@@ -5,13 +5,6 @@ from scipy.spatial.distance import pdist
 from scipy.spatial.distance import squareform
 import pykronecker as kn
 
-class PointSource():
-    
-    def __init__(self, src_str, src_loc):
-        self.src_loc = src_loc
-        self.src_str = src_str
-        self.src_dist = None
-
 class DistributedSource():
 
     def __init__(self, src_str, src_dist=None):
@@ -316,60 +309,3 @@ class UniformCuboidSource(DistributedSource):
         self.src_dist = bool_map * self.src_str / np.count_nonzero(bool_map.ravel())
         return self.src_dist
 
-
-class GRF_source(DistributedSource):
-    
-    def __init__(self, sigma, lam, src_str=None, eps=1e-8):
-        """Class for Gaussian random field source distribution. 
-        For now we use the squared exponential kernel with the exponential to Gaussian link function
-        """
-        super().__init__(src_str)
-        self.sigma = sigma
-        self.lam = lam
-        self.cov_kernel = "squared_exponential"
-        self.eps = 1e-8
-    def get_src_dist(self, vox_ctr):
-        # Construct the covariance matrix and cholesky decomposition based on the voxel centers
-        self.vox_ctr=vox_ctr
-        img_shape = vox_ctr.shape[:-1]
-        y_ctr = vox_ctr[:,0,0,1]
-        x_ctr = vox_ctr[0,:,0,0]
-        z_ctr = vox_ctr[0,0,:,2]
-
-        r_sqrd_list  = [
-                    squareform(pdist(y_ctr.reshape(-1,1), metric="sqeuclidean")),
-                    squareform(pdist(x_ctr.reshape(-1,1), metric="sqeuclidean")),
-                    squareform(pdist(z_ctr.reshape(-1,1), metric="sqeuclidean"))
-                    ]
-        if self.cov_kernel == "squared_exponential":
-            cov = kn.KroneckerProduct(
-                [np.exp(-r_sqrd / (2 * self.sigma**2)) for r_sqrd in r_sqrd_list]
-                )
-            self.cov = cov
-            self.cov_diag = cov.diag()
-        else:
-            raise NotImplementedError
-            
-        self.chol_cov = kn.KroneckerProduct([np.linalg.cholesky(cov_dim + self.eps * np.eye(cov_dim.shape[0])) for cov_dim in self.cov.As])
-        
-        # Make a realization
-        xi_w = np.random.normal(size=(np.prod(vox_ctr.shape[:-1]), 1))
-        xi = self.chol_cov @ xi_w
-        self.src_dist = self.inv_link(lam=self.lam, xi=xi, cov=self.cov, cov_diag=self.cov_diag).reshape(img_shape) / 3.7e10
-
-        return self.src_dist 
-    def get_another_dist(self):
-        xi_w = np.random.normal(size=(np.prod(self.vox_ctr.shape[:-1]), 1))
-        xi = self.chol_cov @ xi_w
-        self.src_dist = self.inv_link(lam=self.lam, xi=xi, cov=self.cov, cov_diag=self.cov_diag).reshape(img_shape) / 3.7e10
-
-        return self.src_dist
-    def inv_link(self, lam, xi, cov, cov_diag=None):
-        cov_diag = cov_diag if cov_diag is not None else np.reshape(np.diag(cov), (-1, 1))
-        from scipy.special import erf
-        err_f = erf(xi / (np.sqrt(2 * cov_diag)))
-
-        return -1 / lam * np.log(0.5 - 0.5 * err_f)
-
-
-    
