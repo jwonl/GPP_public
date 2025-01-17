@@ -47,10 +47,7 @@ class Scenario:
 
     def get_src_dist(self):
         for s in self.srcs:
-            if isinstance(s, PointSource) is True:
-                continue
-            else:
-                self.src_dist += s.get_src_dist(self.vox_ctr)
+            self.src_dist += s.get_src_dist(self.vox_ctr)
 
     def forward_proj(self):
         self.fp_counts = np.zeros((self.path.shape[0], len(self.dets)))
@@ -74,24 +71,8 @@ class Scenario:
             )
             del geo_eff
 
-            for s_num, s in tqdm(enumerate(self.srcs)):
-                if isinstance(s, PointSource):
-                    r = np.sqrt(np.sum((self.path - s.src_loc) ** 2, axis=1))
-                    geo_eff = 0.5 * (1 - r / np.sqrt(d.det_rad**2 + r**2))
-                    eff = geo_eff * d.abs_eff
-                    cnts = eff * s.src_str * self.CI_TO_BQ * self.int_time
-
-                else:
-                    # r = np.linalg.norm((self.vox_ctr[np.newaxis,:,:,:,:]-\
-                    #     self.path[:,np.newaxis, np.newaxis, np.newaxis, :]),
-                    #     axis=-1)
-                    # geo_eff = 0.5 * (1-r/np.sqrt(d.det_rad**2+r**2))
-                    # del(r)
-                    # self.sys_mat = np.reshape(
-                    #     geo_eff * d.abs_eff * self.int_time,
-                    #     (self.n_pose, -1))
-                    # del(geo_eff)
-                    cnts = (self.sys_mat @ s.src_dist.reshape(-1, 1)) * self.CI_TO_BQ
+            for s_num, s in tqdm(enumerate(self.srcs)):      
+                cnts = (self.sys_mat @ s.src_dist.reshape(-1, 1)) * self.CI_TO_BQ
                 self.fp_counts_dict[d_num, s_num] = cnts.ravel()
                 self.fp_counts[:, d_num] += cnts.ravel()
         bkg_counts = self.int_time * self.bkg

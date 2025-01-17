@@ -127,43 +127,12 @@ def draw_2D_img(
     if srcs is None:
         srcs = scenario.srcs
 
-    point_srcs = [s for s in srcs if isinstance(s, PointSource)]
     dist_srcs = [s for s in srcs if isinstance(s, DistributedSource)]
 
     if len(dist_srcs) > 0:
         dist_cbar = True
     else:
         dist_cbar = False
-    if len(point_srcs) > 0:
-        point_label = True
-    else:
-        point_label = False
-
-    for i, s in enumerate(point_srcs):
-        if i == 0:
-            units = Units()
-            src_str_parsed = units.convert(s.src_str)
-            ax.scatter(
-                s.src_loc[0],
-                s.src_loc[1],
-                color="r",
-                marker="x",
-                s=150,
-                # label=f"Point source {int(src_str_parsed[0])} {src_str_parsed[1]:s}Ci",
-                label=f"Point source location",
-            )
-        else:
-            units = Units()
-            src_str_parsed = units.convert(s.src_str)
-            ax.scatter(
-                s.src_loc[0],
-                s.src_loc[1],
-                color="r",
-                marker="x",
-                s=150,
-                # label=f"Point source {int(src_str_parsed[0])} {src_str_parsed[1]:s}Ci",
-                # label=f"Point source location",
-            )
 
     if len(dist_srcs) > 0:
         summed_src = sum(dist_srcs)
@@ -214,9 +183,6 @@ def draw_2D_img(
         act_cbar.ax.yaxis.set_offset_position("left")
         act_cbar.formatter.set_powerlimits((0, 0))
         act_cbar.set_label(cbar_label)
-
-    if point_label is True:
-        ax.legend()
 
     if draw_contour is True:
         assert contour_src is not None

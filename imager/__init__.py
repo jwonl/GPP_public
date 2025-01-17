@@ -3,7 +3,6 @@ from .imager import Imager
 from .path import WalkingPath, RasterPath
 from .scenario import Scenario
 from .source import (
-    PointSource,
     DistributedSource,
     GaussianSource,
     CuboidGaussianSource,
@@ -11,5 +10,4 @@ from .source import (
     UniformCuboidSource,
     RingGaussianSource,
     UniformRingSource,
-    GRF_source
 )

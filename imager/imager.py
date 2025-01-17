@@ -453,7 +453,6 @@ class Imager:
             #     -(norm.pdf(xi, scale=cov_diag)*norm.pdf(-1*np.abs(xi), scale=cov_diag)))/(norm.cdf(-1*np.abs(xi), scale=cov_diag))**2
             d2fdxi2 = dfdxi * (lam * dfdxi - xi / cov_diag)
             hessian = d2Ldfdxi * dfdxi + np.diag((d2fdxi2 * dLdf).ravel())
-            print("np.diag(d2fdxi2 * dLdf) term added")
         else:
             hessian = None
             # d2Ldfdxi = ((self.meas / (fp**2)) * self.sys_mat).T @ (
@@ -464,10 +463,8 @@ class Imager:
             # d2fdxi2 = dfdxi * (lam * dfdxi - xi / cov_diag)
             # #hessian = d2Ldfdxi * dfdxi + np.diag((d2fdxi2 * dLdf).ravel())
             # hessian = d2Ldfdxi * dfdxi
-            print("np.diag(d2fdxi2 * dLdf) term removed")
         #hessian = d2Ldfdxi * dfdxi
         hessian_2 = None
-        print("np.diag(d2fdxi2 * dLdf) term removed")
         #print("(d2fdxi2)", d2fdxi2)
         #print("logdet hessian", np.linalg.slogdet(hessian))
         print(f"Hessian computation time", time.time() - laplace_start)

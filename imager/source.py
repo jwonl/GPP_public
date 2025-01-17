@@ -1,9 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import multivariate_normal
-from scipy.spatial.distance import pdist
-from scipy.spatial.distance import squareform
-import pykronecker as kn
 
 class DistributedSource():
 
